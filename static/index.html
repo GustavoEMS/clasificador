@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alzheimer MRI Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="file"] {
+            margin: 20px;
+            display: none;
+        }
+        .custom-file-upload {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .custom-file-upload:hover {
+            background-color: #0056b3;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        p {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        img {
+            max-width: 300px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .reset-button {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Clasificador de Alzheimer MRI </h1>
+        <label for="imageUpload" class="custom-file-upload">Elegir imagen</label>
+        <input type="file" id="imageUpload" accept="image/*">
+        <button onclick="uploadImage()">Clasificar imagen</button>
+        <button class="reset-button" onclick="resetPage()">Resetear</button>
+        <p id="result"></p>
+        <img id="uploadedImage" src="" alt="Uploaded Image">
+    </div>
+    
+    <script>
+        function uploadImage() {
+            var input = document.getElementById('imageUpload');
+            if (input.files && input.files[0]) {
+                var formData = new FormData();
+                formData.append('file', input.files[0]);
+
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').innerText = 'Clase predicha: ' + data.class;
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('uploadedImage').src = e.target.result;
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+        function resetPage() {
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('result').innerText = '';
+            document.getElementById('uploadedImage').src = '';
+        }
+    </script>
+</body>
+</html>
